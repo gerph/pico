@@ -5,7 +5,7 @@
 CCflags = -apcs 3/26 -c -depend !Depend -IC: -throwback
 CCflags32 = -apcs 3/32 -c -depend !Depend -IC: -throwback
 C++flags = -c -depend !Depend -IC: -throwback
-Linkflags = -aif -c++ -o $@
+Linkflags = -aif -c++ -rescan -o $@
 ObjAsmflags = -throwback -NoCache -depend !Depend
 CMHGflags = 
 LibFileflags = -c -o $@
@@ -48,11 +48,18 @@ all: aif.pilot \
      aif32.pilot \
      aif32.pico
 
+.INIT:
+        @cdir o
+        @cdir o32
+        @cdir aif
+        @cdir aif32
+
+
 aif.pilot:  o.pilot $(LIBS)
         link $(linkflags) o.pilot $(LIBS)
 aif32.pilot:  o32.pilot $(LIBS32)
         link $(linkflags) o32.pilot $(LIBS32)
-        
+
 aif.pico:   o.main $(LIBS)
         link $(linkflags) o.main $(LIBS)
 aif32.pico:   o32.main $(LIBS32)
