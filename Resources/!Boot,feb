@@ -1,0 +1,3 @@
+| !Boot file for Pico
+Iconsprites <Obey$dir>.!Sprites
+Set Alias$Pico /<Obey$Dir>.Pico %%*0

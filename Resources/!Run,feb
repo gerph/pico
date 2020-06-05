@@ -1,0 +1,3 @@
+| !Run file for Pico
+Iconsprites <Obey$dir>.!Sprites
+TaskWindow "<Obey$Dir>.Pico %0" -wimpslot 256k -quit -ctrl -name "UW Pico"

@@ -13,6 +13,7 @@ LibFileflags = -c -o $@
 Squeezeflags = -o $@
 PCflags = -c -depend !Depend -throwback -IP:
 JFPatchflags = -depend !Depend -throwback
+CPflags = ~C~RV
 
 LIB_OBJS = o.attach \
            o.basic \
@@ -44,10 +45,10 @@ LIBS32 = C:o.stubsG \
          o32.unixdirs
 
 # Final targets:
-all: aif.pilot \
-     aif.pico \
-     aif32.pilot \
-     aif32.pico
+binaries: aif.pilot \
+          aif.pico \
+          aif32.pilot \
+          aif32.pico
 
 .INIT:
         @cdir o
@@ -70,6 +71,31 @@ o.libpico: $(LIB_OBJS)
         libfile $(libfileflags) $(LIB_OBJS)
 o32.libpico: $(LIB_OBJS32)
         libfile $(libfileflags) $(LIB_OBJS32)
+
+
+release26: aif.pilot aif.pico
+        @cdir Release
+        @cdir Release.!Pico
+        @copy aif.pilot Release.pilot ${CPFLAGS}
+        @copy aif.pico Release.!Pico ${CPFLAGS}
+        @copy Resources.!Run Release.!Pico.!Run ${CPFLAGS}
+        @copy Resources.!Boot Release.!Pico.!Boot ${CPFLAGS}
+        @copy Resources.!Sprites Release.!Pico.!Sprites ${CPFLAGS}
+        @copy docs.ReleaseNote Release.ReleaseNote ${CPFLAGS}
+        @copy docs.CPYRIGHT Release.CPYRIGHT ${CPFLAGS}
+
+
+release32: aif32.pilot aif32.pico
+        @cdir Release
+        @cdir Release.!Pico
+        @copy aif32.pilot Release.pilot ${CPFLAGS}
+        @copy aif32.pico Release.!Pico ${CPFLAGS}
+        @copy Resources.!Run Release.!Pico.!Run ${CPFLAGS}
+        @copy Resources.!Boot Release.!Pico.!Boot ${CPFLAGS}
+        @copy Resources.!Sprites Release.!Pico.!Sprites ${CPFLAGS}
+        @copy docs.ReleaseNote Release.ReleaseNote ${CPFLAGS}
+        @copy docs.CPYRIGHT Release.CPYRIGHT ${CPFLAGS}
+
 
 ## Rule Patterns ##
 
