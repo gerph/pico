@@ -1027,11 +1027,20 @@ WINDOW *wp;
 	    i	   = term.t_ncol - n - 22;		/* space available */
 	    while(i > 0 && endp - cp > i){
 		if(!prefix){
+#ifndef __riscos
 		    prefix = ".../";			/* path won't fit! */
-		    i -= 4;
+            i -= 4;
+#else
+            prefix = "...";            /* path won't fit! */
+            i -= 3;
+#endif
 		}
 
+#ifndef __riscos
 		if(!(p = strchr(cp, '/'))){		/* neat break? */
+#else
+        if(!(p = strchr(cp, '.'))){     /* neat break? */
+#endif
 		    cp = endp - i;			/* do best we can */
 		    break;
 		}

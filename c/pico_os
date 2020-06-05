@@ -230,6 +230,8 @@ int ttclose(void)
     _swix(OS_Byte,_INR(0,2),225,tt_oldfunc8state,0);
     _swix(OS_Byte,_INR(0,2),226,tt_oldfunc9state,0);
     _swix(OS_Byte,_INR(0,2),221,tt_oldfuncCstate,0);
+    /* Ensure that we end on a blank line */
+    printf("\n");
 
 #else
 
@@ -5699,19 +5701,22 @@ tinfoterminalinfo(termcap_wins)
       {
         printf("Failed to read window size\n");
       }
-      col=vars[0];
-      row=vars[1];
+      else
+      {
+          col=vars[0];
+          row=vars[1];
+      }
 
       revexist=TRUE;
     }
     /* Now check if there is an override on these */
     er = getenv("Pico$Lines");
     if (er==NULL && taskwindow()) er = getenv("Lines");
-    if(!er && (rr = atoi(er)) > 0)
+    if(er != NULL && (rr = atoi(er)) > 0)
       row = rr-1;
     ec = getenv("Pico$Columns");
     if (ec==NULL && taskwindow()) ec = getenv("Columns");
-    if (!ec && (cc = atoi(ec)) > 0)
+    if (ec != NULL && (cc = atoi(ec)) > 0)
       col = cc;
 
     ttgetwinsz(&row, &col);
@@ -6122,7 +6127,6 @@ static int tinfoeeol(void)
       _swix(OS_WriteC,_IN(0),0);
       _swix(OS_WriteC,_IN(0),0);
       _swix(OS_WriteC,_IN(0),0);
-      _swix(OS_WriteC,_IN(0),0);
     }
   }
 #endif
@@ -6196,7 +6200,6 @@ int state;			/* FALSE = normal video, TRUE = rev video */
     _swix(OS_WriteC,_IN(0),23);
     _swix(OS_WriteC,_IN(0),17);
     _swix(OS_WriteC,_IN(0),5);
-    _swix(OS_WriteC,_IN(0),0);
     _swix(OS_WriteC,_IN(0),0);
     _swix(OS_WriteC,_IN(0),0);
     _swix(OS_WriteC,_IN(0),0);

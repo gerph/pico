@@ -2,8 +2,9 @@
 
 
 # Toolflags:
-CCflags = -apcs 3/26 -c -depend !Depend -IC: -throwback
-CCflags32 = -apcs 3/32 -c -depend !Depend -IC: -throwback
+# -za => no unaligned loads
+CCflags = -apcs 3/26 -c -depend !Depend -IC: -za -throwback
+CCflags32 = -apcs 3/32 -c -depend !Depend -IC: -za -throwback
 C++flags = -c -depend !Depend -IC: -throwback
 Linkflags = -aif -c++ -rescan -o $@
 ObjAsmflags = -throwback -NoCache -depend !Depend
@@ -85,9 +86,7 @@ o32.libpico: $(LIB_OBJS32)
 
 # Dynamic dependencies:
 o.spell: c.spell h.os C:h.string C:h.signal C:h.ctype C:h.limits h.unixdirs h.pico h.estruct h.edef
-o.arcterm: c.arcterm h.os C:h.string C:h.ctype C:h.limits h.unixdirs h.pico h.estruct h.edef C:h.swis C:h.kernel C:h.stdlib
 o.os_dep: c.os_dep C:h.swis C:h.kernel h.os C:h.string C:h.signal C:h.ctype C:h.limits h.unixdirs h.pico h.estruct h.edef h.efunc
-o32.unixfiles: c.unixfiles C:h.swis C:h.kernel C:h.kernel h.unixfiles
 o.pilot: c.pilot h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.main: c.main h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.attach: c.attach h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
@@ -100,34 +99,136 @@ o.display: c.display h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.file: c.file h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.fileio: c.fileio h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.line: c.line h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o.osdep: c.osdep C:h.swis C:h.kernel h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.pico: c.pico h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc h.ebind
 o.random: c.random h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.region: c.region h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.search: c.search h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.window: c.window h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o.word: c.word h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o.unixfiles: c.unixfiles C:h.swis C:h.kernel C:h.kernel h.unixfiles
-o.unixdirs: c.unixdirs C:h.swis C:h.kernel h.unixdirs
-o.pico_os: c.pico_os h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc C:h.swis C:h.kernel C:h.swis
-o32.main: c.main h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.attach: c.attach h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.basic: c.basic h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.bind: c.bind h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.buffer: c.buffer h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.composer: c.composer h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o32.display: c.display h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.file: c.file h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.fileio: c.fileio h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.line: c.line h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o32.osdep: c.osdep C:h.swis C:h.kernel h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.pico: c.pico h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc h.ebind
-o32.random: c.random h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o32.region: c.region h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o32.search: c.search h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o32.window: c.window h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o32.word: c.word h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
 o32.pilot: c.pilot h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o32.unixdirs: c.unixdirs C:h.swis C:h.kernel h.unixdirs
 o32.browse: c.browse h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc
-o32.pico_os: c.pico_os h.headers h.os h.unixdirs h.estruct h.pico h.edef h.efunc C:h.swis C:h.kernel C:h.swis
+o.osdep:	c.osdep
+o.osdep:	C:h.swis
+o.osdep:	C:h.kernel
+o.osdep:	h.headers
+o.osdep:	h.os
+o.osdep:	h.unixdirs
+o.osdep:	h.estruct
+o.osdep:	h.pico
+o.osdep:	h.edef
+o.osdep:	h.efunc
+o.unixfiles:	c.unixfiles
+o.unixfiles:	C:h.swis
+o.unixfiles:	C:h.kernel
+o.unixfiles:	C:h.kernel
+o.unixfiles:	h.unixfiles
+o.unixdirs:	c.unixdirs
+o.unixdirs:	C:h.swis
+o.unixdirs:	C:h.kernel
+o.unixdirs:	h.unixdirs
+o32.osdep:	c.osdep
+o32.osdep:	C:h.swis
+o32.osdep:	C:h.kernel
+o32.osdep:	h.headers
+o32.osdep:	h.os
+o32.osdep:	h.unixdirs
+o32.osdep:	h.estruct
+o32.osdep:	h.pico
+o32.osdep:	h.edef
+o32.osdep:	h.efunc
+o.pico_os:	c.pico_os
+o.pico_os:	h.headers
+o.pico_os:	h.os
+o.pico_os:	h.unixdirs
+o.pico_os:	h.estruct
+o.pico_os:	h.pico
+o.pico_os:	h.edef
+o.pico_os:	h.efunc
+o.pico_os:	C:h.swis
+o.pico_os:	C:h.kernel
+o.pico_os:	C:h.swis
+o32.random:	c.random
+o32.random:	h.headers
+o32.random:	h.os
+o32.random:	h.unixdirs
+o32.random:	h.estruct
+o32.random:	h.pico
+o32.random:	h.edef
+o32.random:	h.efunc
+o32.region:	c.region
+o32.region:	h.headers
+o32.region:	h.os
+o32.region:	h.unixdirs
+o32.region:	h.estruct
+o32.region:	h.pico
+o32.region:	h.edef
+o32.region:	h.efunc
+o32.search:	c.search
+o32.search:	h.headers
+o32.search:	h.os
+o32.search:	h.unixdirs
+o32.search:	h.estruct
+o32.search:	h.pico
+o32.search:	h.edef
+o32.search:	h.efunc
+o32.window:	c.window
+o32.window:	h.headers
+o32.window:	h.os
+o32.window:	h.unixdirs
+o32.window:	h.estruct
+o32.window:	h.pico
+o32.window:	h.edef
+o32.window:	h.efunc
+o32.word:	c.word
+o32.word:	h.headers
+o32.word:	h.os
+o32.word:	h.unixdirs
+o32.word:	h.estruct
+o32.word:	h.pico
+o32.word:	h.edef
+o32.word:	h.efunc
+o32.unixfiles:	c.unixfiles
+o32.unixfiles:	C:h.swis
+o32.unixfiles:	C:h.kernel
+o32.unixfiles:	C:h.kernel
+o32.unixfiles:	h.unixfiles
+o32.unixdirs:	c.unixdirs
+o32.unixdirs:	C:h.swis
+o32.unixdirs:	C:h.kernel
+o32.unixdirs:	h.unixdirs
+o32.display:	c.display
+o32.display:	h.headers
+o32.display:	h.os
+o32.display:	h.unixdirs
+o32.display:	h.estruct
+o32.display:	h.pico
+o32.display:	h.edef
+o32.display:	h.efunc
+o32.main:	c.main
+o32.main:	h.headers
+o32.main:	h.os
+o32.main:	h.unixdirs
+o32.main:	h.estruct
+o32.main:	h.pico
+o32.main:	h.edef
+o32.main:	h.efunc
+o32.pico_os:	c.pico_os
+o32.pico_os:	h.headers
+o32.pico_os:	h.os
+o32.pico_os:	h.unixdirs
+o32.pico_os:	h.estruct
+o32.pico_os:	h.pico
+o32.pico_os:	h.edef
+o32.pico_os:	h.efunc
+o32.pico_os:	C:h.swis
+o32.pico_os:	C:h.kernel
+o32.pico_os:	C:h.swis
