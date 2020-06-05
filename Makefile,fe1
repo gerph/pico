@@ -77,7 +77,7 @@ release26: aif.pilot aif.pico
         @cdir Release
         @cdir Release.!Pico
         @copy aif.pilot Release.pilot ${CPFLAGS}
-        @copy aif.pico Release.!Pico ${CPFLAGS}
+        @copy aif.pico Release.!Pico.pico ${CPFLAGS}
         @copy Resources.!Run Release.!Pico.!Run ${CPFLAGS}
         @copy Resources.!Boot Release.!Pico.!Boot ${CPFLAGS}
         @copy Resources.!Sprites Release.!Pico.!Sprites ${CPFLAGS}
@@ -89,7 +89,7 @@ release32: aif32.pilot aif32.pico
         @cdir Release
         @cdir Release.!Pico
         @copy aif32.pilot Release.pilot ${CPFLAGS}
-        @copy aif32.pico Release.!Pico ${CPFLAGS}
+        @copy aif32.pico Release.!Pico.pico ${CPFLAGS}
         @copy Resources.!Run Release.!Pico.!Run ${CPFLAGS}
         @copy Resources.!Boot Release.!Pico.!Boot ${CPFLAGS}
         @copy Resources.!Sprites Release.!Pico.!Sprites ${CPFLAGS}
