@@ -1,0 +1,36 @@
+ReleaseNote for pilot and pico
+------------------------------
+
+Pico and Pilot are based on the University of Washington 'Pine' newsreader.
+
+These ports are not intended for any purpose other than to simplify editing
+files in a taskwindow, for example from another process in a taskwindow.
+The major example of this kind of use would be that of CVS log editing.
+
+Base source: Pine 4.44
+
+Changes from the official sources :
+  * Changes to code to conform better to standard C, and to compile under
+    RISC OS Norcroft compiler.
+  * Addition of 'ANSI' and 'native' modes. By default the tools will use
+    native mode. The -A switch will enable ANSI mode, allowing pico to be
+    used in an environment that expects ANSI (eg under TelnetD).
+  * Support for ESC[6~/ESC[5~ style paging (as used by Nettle under ANSI
+    taskwindow).
+  * Version string declares as Pilot 2.0L and Pico 4.2L.
+  * The variable Pilot$Pager will be used in place of PAGER.
+  * The variable Pilot$Editor will be used in favour of EDITOR (also
+    supported). The use of the alternate editor is limited, but could be
+    set to 'ee -t &FFF' to edit in a normal Zap window. Why you would want
+    to do this is somewhat beyond me, though.
+  * The variable Pico$Lines will be used if present and in a taskwindow.
+    If not present, LINES will be used. If neither of these are present,
+    the default will be used.
+  * Pico$Columns and COLUMNS will be used in the same way.
+  * Pico$Spell will be used over SPELL, although spell checking has not been
+    tested with a working spell check tool.
+  * Mailbox check is disabled.
+  * Mouse support is disabled.
+
+-- 
+justin.fletcher@ntlworld.com
