@@ -7,17 +7,17 @@ These ports are not intended for any purpose other than to simplify editing
 files in a taskwindow, for example from another process in a taskwindow.
 The major example of this kind of use would be that of CVS log editing.
 
-Base source: Pine 4.44
+Base source: Pine 4.63
 
 Changes from the official sources :
   * Changes to code to conform better to standard C, and to compile under
     RISC OS Norcroft compiler.
-  * Addition of 'ANSI' and 'native' modes. By default the tools will use
-    native mode. The -A switch will enable ANSI mode, allowing pico to be
+  * Addition of 'ANSI' and 'native' output modes. By default the tools will
+    use native mode. The -A switch will enable ANSI mode, allowing pico to be
     used in an environment that expects ANSI (eg under TelnetD).
   * Support for ESC[6~/ESC[5~ style paging (as used by Nettle under ANSI
     taskwindow).
-  * Version string declares as Pilot 2.0L and Pico 4.2L.
+  * Version string declares as Pilot 2.0L and Pico 4.10L.
   * The variable Pilot$Pager will be used in place of PAGER.
   * The variable Pilot$Editor will be used in favour of EDITOR (also
     supported). The use of the alternate editor is limited, but could be
@@ -33,4 +33,4 @@ Changes from the official sources :
   * Mouse support is disabled.
 
 -- 
-justin.fletcher@ntlworld.com
+gerph@gerph.org
