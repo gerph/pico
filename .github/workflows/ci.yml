@@ -1,0 +1,115 @@
+---
+# RISC OS CI build through build.riscos.online
+#
+# To reuse this configuration with your own repository:
+#
+#   - Create a .robuild.yaml to describe what should be built on RISC OS.
+#       - `jobs.build.script` should be a list of commands to run on RISC OS
+#       - `jobs.build.artifacts.path` should be the directory to zip.
+#   - Create a VersionNum file if you wish to use the automated versioning
+#     in the same style as the RISC OS sources. [optional]
+#   - Update the 3rd step ('give the archive a versioned name') to give a
+#     suitable name for the archive.
+#   - Update the 4th step ('upload-artifacts') to include the same names.
+#
+# The 'release' job is triggered when a tag starting with a 'v' is created,
+# which will create a GitHub release for the repository with the name of the
+# version tag. The release will be a draft, and should be updated with
+# changes as you see fit.
+#
+
+name: RISC OS
+
+# Controls when the action will run. Triggers the workflow on:
+#   * push on any branch.
+#   * tag creation for tags beginning with a 'v'
+on:
+  push:
+    branches: ["*"]
+    tags: ["v*"]
+  # Pull request events happen on pull request state transitions, so we probably don't want this here.
+  #pull_request:
+  #  branches: ["*"]
+
+jobs:
+  build-riscos:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      leafname: ${{ steps.version.outputs.leafname }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Step intended to be reused in CI pipelines.
+      - name: Build through build.riscos.online
+        run: |
+          set -o pipefail
+          # Zip up the source to send to robuild
+          zip -q9r /tmp/source-archive.zip * .robuild.yaml
+          # Fetch the build client
+          curl -s -L -o riscos-build-online https://github.com/gerph/robuild-client/releases/download/v0.05/riscos-build-online && chmod +x riscos-build-online
+          # Send the archive file to build service
+          ./riscos-build-online -i /tmp/source-archive.zip -t 600 -o /tmp/built
+
+      - name: Give the output a versioned name
+        id: version
+        run: |
+          version=$(sed -E '/^char.*version/ ! d ; s/.*"(.*)".*/\1/' h/pico)
+          echo "This is version: $version"
+          leafname="Pico-$version.zip"
+          if [ -f /tmp/built,a91 ] ; then
+              cp /tmp/built,a91 "Pico-$version.zip"
+          else
+              echo "No archive was built?"
+              exit 1
+          fi
+          echo "::set-output name=version::$version"
+          echo "::set-output name=leafname::$leafname"
+        # We extract the version number from the header file that defines it.
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: RISCOS-build
+          path: ${{ steps.version.outputs.leafname }}
+        # The artifact that is downloadable from the Actions is actually a zip of the artifacts
+        # that we supply. So it will be a regular Zip file containing a RISC OS Zip file.
+
+  # The release only triggers when the thing that was pushed was a tag starting with 'v'
+  release:
+    needs: build-riscos
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download built binary
+        uses: actions/download-artifact@v1
+        with:
+          name: RISCOS-build
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ needs.build-riscos.outputs.version }}
+          draft: true
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`.
+          # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: RISCOS-build/${{ needs.build-riscos.outputs.leafname }}
+          asset_name: ${{ needs.build-riscos.outputs.leafname }}
+          asset_content_type: application/zip
