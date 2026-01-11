@@ -23,19 +23,22 @@ name: RISC OS
 # Controls when the action will run. Triggers the workflow on:
 #   * push on any branch.
 #   * tag creation for tags beginning with a 'v'
+#   * pull requests
 on:
   push:
     branches: ["*"]
     tags: ["v*"]
-  # Pull request events happen on pull request state transitions, so we probably don't want this here.
-  #pull_request:
-  #  branches: ["*"]
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: ["*"]
 
 jobs:
   build-riscos:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    timeout-minutes: 20
+    concurrency:
+      group: riscos-build-server
     outputs:
       version: ${{ steps.version.outputs.version }}
       leafname: ${{ steps.version.outputs.leafname }}
@@ -43,16 +46,19 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
 
-      # Step intended to be reused in CI pipelines.
+      - name: Obtain prerequisite build tool
+        run: |
+          # Fetch the build client
+          curl -s -L -o riscos-build-online https://github.com/gerph/robuild-client/releases/download/v0.07/riscos-build-online && chmod +x riscos-build-online
+
       - name: Build through build.riscos.online
         run: |
           set -o pipefail
           # Zip up the source to send to robuild
           zip -q9r /tmp/source-archive.zip * .robuild.yaml
-          # Fetch the build client
-          curl -s -L -o riscos-build-online https://github.com/gerph/robuild-client/releases/download/v0.05/riscos-build-online && chmod +x riscos-build-online
+
           # Send the archive file to build service
           ./riscos-build-online -i /tmp/source-archive.zip -t 600 -o /tmp/built
 
@@ -68,11 +74,10 @@ jobs:
               echo "No archive was built?"
               exit 1
           fi
-          echo "::set-output name=version::$version"
-          echo "::set-output name=leafname::$leafname"
-        # We extract the version number from the header file that defines it.
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "leafname=$leafname" >> $GITHUB_OUTPUT
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v6
         with:
           name: RISCOS-build
           path: ${{ steps.version.outputs.leafname }}
@@ -84,32 +89,19 @@ jobs:
     needs: build-riscos
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
     steps:
-      - name: Download built binary
-        uses: actions/download-artifact@v1
+      - name: Download built RISC OS binary
+        uses: actions/download-artifact@v7
         with:
           name: RISCOS-build
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ needs.build-riscos.outputs.version }}
-          draft: true
           prerelease: false
-
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`.
-          # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: RISCOS-build/${{ needs.build-riscos.outputs.leafname }}
-          asset_name: ${{ needs.build-riscos.outputs.leafname }}
-          asset_content_type: application/zip
+          draft: true
+          artifacts: "${{ needs.build-riscos.outputs.leafname }}"
+          artifactContentType: application/zip

@@ -14,6 +14,8 @@ jobs:
     # Multiple variables may be assigned.
     env:
       "Sys$Environment": ROBuild
+      BUILD32: 1
+      "Alias$AMU": "HostAMU %*0"
 
     # Directory to change to before running script
     #dir: <working directory>
