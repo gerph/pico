@@ -89,7 +89,7 @@ jobs:
             exit 1
         fi
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v6
       with:
         name: Pico
         path: /tmp/robuild/Pico*.zip
