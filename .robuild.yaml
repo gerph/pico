@@ -15,6 +15,7 @@ jobs:
     env:
       "Sys$Environment": ROBuild
       "BUILD32": 1
+
       # Host AMU doesn't work, but the CC build should still be ok?
       #"Alias$amu": "hostamu %*0"
       "Alias$cc": "hostcc %*0"
@@ -31,6 +32,7 @@ jobs:
       - amu release32
 
 
+      # Done!
       - echo
       - echo *** SUCCESS ***
 

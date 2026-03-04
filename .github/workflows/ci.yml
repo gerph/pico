@@ -32,11 +32,14 @@ on:
     types: [opened, reopened, synchronize]
     branches: ["*"]
 
+env:
+  COMPONENT_NAME: "Pico"
+
 jobs:
   build-riscos:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     concurrency:
       group: riscos-build-server
     outputs:
@@ -55,21 +58,20 @@ jobs:
 
       - name: Build through build.riscos.online
         run: |
-          set -o pipefail
           # Zip up the source to send to robuild
           zip -q9r /tmp/source-archive.zip * .robuild.yaml
 
-          # Send the archive file to build service
-          ./riscos-build-online -i /tmp/source-archive.zip -t 600 -o /tmp/built
+          # Send the archive file to build service (timeout of 60 seconds)
+          ./riscos-build-online -i /tmp/source-archive.zip -a off -t 60 -o /tmp/built
 
       - name: Give the output a versioned name
         id: version
         run: |
           version=$(sed -E '/^char.*version/ ! d ; s/.*"(.*)".*/\1/' h/pico)
           echo "This is version: $version"
-          leafname="Pico-$version.zip"
+          leafname="$COMPONENT_NAME-$version.zip"
           if [ -f /tmp/built,a91 ] ; then
-              cp /tmp/built,a91 "Pico-$version.zip"
+              cp /tmp/built,a91 "$leafname"
           else
               echo "No archive was built?"
               exit 1
